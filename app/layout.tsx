@@ -41,6 +41,12 @@ export default function RootLayout({
           integrity="sha256-p4NxAoJBhIIN+hmNHrzRCf9tD/miZyoHS5obTRR9BMY="
           crossOrigin=""
         />
+        {/* Google Maps API configured strictly for South Africa (region=ZA) */}
+        <script
+          src="https://maps.googleapis.com/maps/api/js?key=AIzaSyBH_QCu50q2s_vcI8wpsxcK_-JWs19mmZM&region=ZA&language=en-ZA"
+          async
+          defer
+        ></script>
       </head>
       <body className="bg-[#070f1e] text-slate-100 font-sans antialiased selection:bg-[#00f2fe] selection:text-[#070f1e] min-h-screen overflow-x-hidden">
         {children}
