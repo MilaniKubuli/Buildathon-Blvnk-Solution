@@ -607,6 +607,27 @@ Diagnostic Answers: ${JSON.stringify(qAnswers)}
             </div>
 
             <div className="space-y-3">
+              {analysisResult.clarification_question && (
+                <div className="p-4 bg-amber-500/10 rounded-2xl border-2 border-amber-500/40 space-y-3">
+                  <div className="flex items-center space-x-2 text-amber-400 font-bold text-sm">
+                    <AlertTriangle className="w-5 h-5 text-amber-400 shrink-0" />
+                    <span>Report Clarification Required Before Municipal Dispatch</span>
+                  </div>
+                  <p className="text-slate-200 text-xs sm:text-sm leading-relaxed">
+                    {analysisResult.clarification_question}
+                  </p>
+                  <div className="p-3 bg-[#070f1e] rounded-xl border border-amber-500/30 text-xs text-amber-300 font-mono space-y-1">
+                    <div className="font-semibold text-amber-200">Recommended Follow-up Questions for Citizen:</div>
+                    <ul className="list-disc list-inside space-y-0.5 text-slate-300">
+                      <li>Which specific park or landmark name?</li>
+                      <li>Which suburb or municipality ward?</li>
+                      <li>Does the smell appear to come from sewage, waste, smoke, or chemicals?</li>
+                      <li>When was it first noticed?</li>
+                    </ul>
+                  </div>
+                </div>
+              )}
+
               <div className="p-4 bg-[#0c182e] rounded-xl border border-[#162a4a]">
                 <span className="text-xs font-semibold text-slate-400 block mb-1">
                   1-Sentence Objective Summary:

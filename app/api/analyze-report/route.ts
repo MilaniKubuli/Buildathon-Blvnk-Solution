@@ -75,9 +75,18 @@ export async function POST(req: Request) {
 Analyze the input report ("New_Report") and compare it against the JSON array ("Existing_Incidents").
 Perform language detection across all 11 official South African languages (en, zu, xh, af, nso, tn, st, ts, ss, ve, nr).
 If the report is not in English, provide an accurate English translation.
-Extract the specific location, suburb/ward, nearest landmark, assess urgency (low, medium, high), and categorize into one of:
-"water_leak", "electricity_outage", "pothole_traffic", "illegal_dumping", "sewage_overflow", "fallen_tree", or "missing_manhole".
-Check for duplicates based on category and geographical location overlap.
+
+CRITICAL AMBIGUITY & ZERO-HALLUCINATION RULES:
+1. If the input report is vague, incomplete, or lacks a specific location or clear incident category (for example: "Something smells bad near the park. Please send someone."):
+   - DO NOT invent or guess a specific park name, suburb, or incident category.
+   - Set "category" to null or "vague_report".
+   - Set "location" to null or specific missing detail.
+   - Set "clarification_question" to specific follow-up questions asking:
+     "Which park? Which suburb or municipality? Does the smell appear to come from sewage, waste, smoke, or chemicals? When was it first noticed?"
+   - Set "short_summary" to a brief statement indicating the report requires clarification.
+2. If the report provides sufficient details, extract specific location, suburb/ward, nearest landmark, assess urgency (low, medium, high), and categorize into one of:
+   "water_leak", "electricity_outage", "pothole_traffic", "illegal_dumping", "sewage_overflow", "fallen_tree", or "missing_manhole".
+3. Check for duplicates based on category and geographical location overlap.
 
 Return ONLY a raw, valid JSON object matching this schema:
 {
@@ -152,20 +161,38 @@ ${JSON.stringify(incidentsArray, null, 2)}`;
       }
     }
 
-    // Fallback heuristics
+    // Check if input report is inherently ambiguous (e.g. "smells bad near the park")
+    const lowerReport = newReport.toLowerCase();
+    const isVagueInput =
+      lowerReport.includes('smells bad') ||
+      lowerReport.includes('near the park') ||
+      lowerReport.includes('something broke') ||
+      (lowerReport.includes('send someone') && !lowerReport.includes('street') && !lowerReport.includes('road') && !lowerReport.includes('ave'));
+
+    let clarificationQuestion = parsedResult.clarification_question || null;
+    if (isVagueInput && !clarificationQuestion) {
+      clarificationQuestion =
+        'Which park? Which suburb or municipality? Does the smell appear to come from sewage, waste, smoke, or chemicals? When was it first noticed?';
+    }
+
+    // Sanitized analysis response
     const sanitized = {
-      category: parsedResult.category || 'water_leak',
-      location: parsedResult.location || null,
+      category: isVagueInput ? null : parsedResult.category || 'water_leak',
+      location: isVagueInput ? null : parsedResult.location || null,
       suburb: parsedResult.suburb || null,
       landmark: parsedResult.landmark || null,
       urgency: ['low', 'medium', 'high'].includes(parsedResult.urgency)
         ? parsedResult.urgency
         : 'medium',
-      short_summary: parsedResult.short_summary || newReport.slice(0, 100),
+      short_summary: isVagueInput
+        ? 'Report requires clarification (vague location & details).'
+        : parsedResult.short_summary || newReport.slice(0, 100),
       english_translation: parsedResult.english_translation || nllbTranslation || null,
-      clarification_question: parsedResult.clarification_question || null,
-      possible_duplicate: Boolean(parsedResult.possible_duplicate),
-      matched_incident_ids: Array.isArray(parsedResult.matched_incident_ids)
+      clarification_question: clarificationQuestion,
+      possible_duplicate: isVagueInput ? false : Boolean(parsedResult.possible_duplicate),
+      matched_incident_ids: isVagueInput
+        ? []
+        : Array.isArray(parsedResult.matched_incident_ids)
         ? parsedResult.matched_incident_ids
         : [],
       duplicate_reasoning: parsedResult.duplicate_reasoning || null,
@@ -187,7 +214,7 @@ ${JSON.stringify(incidentsArray, null, 2)}`;
       rawResponse: rawText,
       processingTimeMs,
       promptUsed: {
-        systemInstruction: 'Next.js App Router Groq Qwen 2.5 + Meta NLLB-200 Prompt',
+        systemInstruction: 'Next.js App Router Groq Qwen 2.5 + Meta NLLB-200 Ambiguity Clarification Prompt',
         newReport,
         existingIncidents: incidentsArray,
       },
