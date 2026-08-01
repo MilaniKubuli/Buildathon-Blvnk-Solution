@@ -1,3 +1,5 @@
+'use client';
+
 import React, { useState } from 'react';
 import {
   Sparkles,
@@ -22,8 +24,13 @@ import {
 } from '../types';
 import { CategoryBadge } from './CategoryBadge';
 import { UrgencyBadge } from './UrgencyBadge';
-import { QuestionnaireWizard } from './QuestionnaireWizard';
+import dynamic from 'next/dynamic';
 import { SA_LANGUAGES, getTranslation } from '../lib/i18n';
+
+const QuestionnaireWizard = dynamic(
+  () => import('./QuestionnaireWizard').then((mod) => mod.QuestionnaireWizard),
+  { ssr: false }
+);
 
 interface AnalysisPanelProps {
   existingIncidents: Incident[];

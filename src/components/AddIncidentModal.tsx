@@ -1,3 +1,5 @@
+'use client';
+
 import React, { useState } from 'react';
 import { X, Plus, AlertTriangle } from 'lucide-react';
 import { Incident, IncidentCategory, UrgencyLevel } from '../types';

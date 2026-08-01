@@ -1,10 +1,17 @@
+'use client';
+
 import React, { useState, useEffect } from 'react';
+import dynamic from 'next/dynamic';
 import { Header } from './components/Header';
 import { AnalysisPanel } from './components/AnalysisPanel';
 import { IncidentList } from './components/IncidentList';
-import { IncidentMap } from './components/IncidentMap';
 import { SystemPromptViewer } from './components/SystemPromptViewer';
 import { AddIncidentModal } from './components/AddIncidentModal';
+
+const IncidentMap = dynamic(
+  () => import('./components/IncidentMap').then((mod) => mod.IncidentMap),
+  { ssr: false }
+);
 import { INITIAL_INCIDENTS } from './data/mockIncidents';
 import { Incident, TicketStatus, SALanguageCode } from './types';
 import {
@@ -20,14 +27,16 @@ export default function App() {
   const t = getTranslation(currentLanguage);
 
   const [incidents, setIncidents] = useState<Incident[]>(() => {
-    try {
-      const saved = localStorage.getItem('municipal_incidents_db');
-      if (saved) {
-        const parsed = JSON.parse(saved);
-        if (Array.isArray(parsed) && parsed.length > 0) return parsed;
+    if (typeof window !== 'undefined') {
+      try {
+        const saved = localStorage.getItem('municipal_incidents_db');
+        if (saved) {
+          const parsed = JSON.parse(saved);
+          if (Array.isArray(parsed) && parsed.length > 0) return parsed;
+        }
+      } catch (e) {
+        console.error('Failed loading saved incidents:', e);
       }
-    } catch (e) {
-      console.error('Failed loading saved incidents:', e);
     }
     return INITIAL_INCIDENTS;
   });
@@ -48,10 +57,12 @@ export default function App() {
 
   // Sync with localStorage
   useEffect(() => {
-    try {
-      localStorage.setItem('municipal_incidents_db', JSON.stringify(incidents));
-    } catch (e) {
-      console.error('Failed saving incidents to localStorage:', e);
+    if (typeof window !== 'undefined') {
+      try {
+        localStorage.setItem('municipal_incidents_db', JSON.stringify(incidents));
+      } catch (e) {
+        console.error('Failed saving incidents to localStorage:', e);
+      }
     }
   }, [incidents]);
 
