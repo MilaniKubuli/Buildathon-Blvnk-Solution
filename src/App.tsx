@@ -88,7 +88,7 @@ export default function App() {
       reportedAt: new Date().toISOString(),
       status: 'duplicate',
       duplicateOfId: matchedId,
-      reportedBy: 'Groq Qwen AI Deduplication',
+      reportedBy: 'BLVNK AI Deduplication',
       votes: 1,
       lat: Number(randomLat.toFixed(4)),
       lng: Number(randomLng.toFixed(4)),
@@ -106,13 +106,12 @@ export default function App() {
     }
   };
 
-  // Metrics calculation
   const totalIncidents = incidents.length;
   const duplicateCount = incidents.filter((i) => i.status === 'duplicate').length;
   const highUrgencyCount = incidents.filter((i) => i.urgency === 'high').length;
 
   return (
-    <div className="min-h-screen bg-slate-950 text-slate-100 font-sans selection:bg-blue-500 selection:text-white flex flex-col">
+    <div className="min-h-screen bg-[#070f1e] text-slate-100 font-sans selection:bg-[#00f2fe] selection:text-[#070f1e] flex flex-col antialiased">
       {/* Header */}
       <Header
         totalIncidents={totalIncidents}
@@ -127,7 +126,7 @@ export default function App() {
       />
 
       {/* Main Content Area */}
-      <main className="flex-1 max-w-7xl w-full mx-auto px-4 sm:px-6 lg:px-8 py-6 space-y-6">
+      <main className="flex-1 max-w-7xl w-full mx-auto px-3 sm:px-6 lg:px-8 py-4 sm:py-6 space-y-6">
         {activeTab === 'analyzer' && (
           <AnalysisPanel
             existingIncidents={incidents}
@@ -160,18 +159,18 @@ export default function App() {
       </main>
 
       {/* Footer */}
-      <footer className="border-t border-slate-800 bg-slate-900/50 py-4 px-4 sm:px-6 lg:px-8 text-xs text-slate-400 mt-auto">
-        <div className="max-w-7xl mx-auto flex flex-col sm:flex-row items-center justify-between gap-2">
+      <footer className="border-t border-[#162a4a] bg-[#050b16]/90 backdrop-blur-md py-4 px-4 sm:px-6 lg:px-8 text-xs text-slate-400 mt-auto">
+        <div className="max-w-7xl mx-auto flex flex-col sm:flex-row items-center justify-between gap-3 text-center sm:text-left">
           <div className="flex items-center space-x-2">
-            <span className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse" />
-            <span className="font-semibold text-slate-300">
-              {t.appTitle} Active
+            <img src="/logo.jpg" alt="BLVNK Logo" className="w-5 h-5 rounded object-cover" />
+            <span className="font-extrabold text-white tracking-wide">
+              BLVNK Tech Solutions
             </span>
-            <span className="text-slate-500">|</span>
-            <span>Groq Qwen 2.5 Engine & Supabase DB</span>
+            <span className="text-slate-600">|</span>
+            <span className="text-[#00f2fe] font-medium">Groq Qwen 2.5 Engine & Supabase DB</span>
           </div>
           <div className="text-slate-500">
-            Supports All 11 Official South African Languages • Interactive Location Refinement & Questionnaire Wizard
+            Compatible across Mobile, Tablet & Desktop • All 11 SA Languages Supported
           </div>
         </div>
       </footer>

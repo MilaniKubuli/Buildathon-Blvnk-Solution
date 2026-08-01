@@ -20,7 +20,6 @@ import {
   Search,
   Navigation,
   BrainCircuit,
-  Layers,
   Check,
 } from 'lucide-react';
 import L from 'leaflet';
@@ -78,7 +77,6 @@ export function QuestionnaireWizard({
     const mapContainer = document.getElementById('questionnaire-map');
     if (!mapContainer) return;
 
-    // Clean old Leaflet instance if present
     const existingMap = (mapContainer as any)._leaflet_id;
     if (existingMap) return;
 
@@ -199,10 +197,10 @@ Diagnostic Answers: ${JSON.stringify(qAnswers)}
       suburb: suburb || undefined,
       landmark: landmark || undefined,
       urgency: severity,
-      description: reportText || 'Report submitted via Municipal AI Questionnaire.',
+      description: reportText || 'Report submitted via BLVNK Questionnaire.',
       reportedAt: new Date().toISOString(),
       status: 'open',
-      reportedBy: 'Resident Questionnaire',
+      reportedBy: 'BLVNK AI Questionnaire',
       lat,
       lng,
       languageCode: currentLanguage,
@@ -226,42 +224,42 @@ Diagnostic Answers: ${JSON.stringify(qAnswers)}
   };
 
   return (
-    <div className="bg-slate-900 border border-slate-800 rounded-2xl p-6 shadow-2xl space-y-6">
-      {/* Wizard Progress Header */}
-      <div className="border-b border-slate-800 pb-4">
+    <div className="blvnk-card rounded-3xl p-4 sm:p-6 shadow-2xl space-y-6">
+      {/* Wizard Header */}
+      <div className="border-b border-[#162a4a] pb-4">
         <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
-          <div>
-            <div className="flex items-center space-x-2 text-xs font-semibold text-blue-400 uppercase tracking-wider">
-              <BrainCircuit className="w-4 h-4" />
-              <span>Step {step} of 5 • Groq Qwen AI Questionnaire</span>
+          <div className="flex items-center space-x-3">
+            <img
+              src="/logo.jpg"
+              alt="BLVNK Logo"
+              className="w-10 h-10 rounded-xl object-cover border border-[#00f2fe]/40 shadow-sm shrink-0"
+            />
+            <div>
+              <div className="flex items-center space-x-2 text-xs font-semibold text-[#00f2fe] uppercase tracking-wider">
+                <BrainCircuit className="w-4 h-4 text-[#00f2fe]" />
+                <span>Step {step} of 5 • BLVNK AI Questionnaire</span>
+              </div>
+              <h2 className="text-xl sm:text-2xl font-bold text-white mt-0.5">
+                {step === 1 && t.step1Title}
+                {step === 2 && t.step2Title}
+                {step === 3 && t.step3Title}
+                {step === 4 && t.step4Title}
+                {step === 5 && t.step5Title}
+              </h2>
             </div>
-            <h2 className="text-2xl font-bold text-white mt-1">
-              {step === 1 && t.step1Title}
-              {step === 2 && t.step2Title}
-              {step === 3 && t.step3Title}
-              {step === 4 && t.step4Title}
-              {step === 5 && t.step5Title}
-            </h2>
-            <p className="text-slate-400 text-sm mt-0.5">
-              {step === 1 && t.step1Subtitle}
-              {step === 2 && t.step2Subtitle}
-              {step === 3 && t.step3Subtitle}
-              {step === 4 && t.step4Subtitle}
-              {step === 5 && t.step5Subtitle}
-            </p>
           </div>
 
           {/* Stepper Dots */}
-          <div className="flex items-center space-x-2 bg-slate-950 p-2 rounded-xl border border-slate-800">
+          <div className="flex items-center space-x-1.5 sm:space-x-2 bg-[#050b16] p-2 rounded-2xl border border-[#162a4a] self-end sm:self-auto">
             {[1, 2, 3, 4, 5].map((s) => (
               <div
                 key={s}
-                className={`w-7 h-7 rounded-lg text-xs font-bold flex items-center justify-center transition-all ${
+                className={`w-7 h-7 sm:w-8 sm:h-8 rounded-xl text-xs font-bold flex items-center justify-center transition-all ${
                   step === s
-                    ? 'bg-blue-600 text-white shadow-lg shadow-blue-500/30 ring-2 ring-blue-400/50'
+                    ? 'blvnk-gradient-btn text-white shadow-lg shadow-cyan-500/30 ring-2 ring-[#00f2fe]/50'
                     : s < step
                     ? 'bg-emerald-500/20 text-emerald-400 border border-emerald-500/40'
-                    : 'bg-slate-800 text-slate-500'
+                    : 'bg-[#0c182e] text-slate-500'
                 }`}
               >
                 {s < step ? <Check className="w-4 h-4" /> : s}
@@ -271,13 +269,12 @@ Diagnostic Answers: ${JSON.stringify(qAnswers)}
         </div>
       </div>
 
-      {/* STEP 1: Language & Natural Language Complaint */}
+      {/* STEP 1: Language & Free-Text Complaint */}
       {step === 1 && (
         <div className="space-y-6">
-          {/* Language Selection Header */}
-          <div className="flex items-center justify-between bg-slate-950 p-4 rounded-xl border border-slate-800">
+          <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between bg-[#050b16] p-4 rounded-2xl border border-[#162a4a] gap-3">
             <div className="flex items-center space-x-3">
-              <Languages className="w-5 h-5 text-blue-400" />
+              <Languages className="w-5 h-5 text-[#00f2fe]" />
               <div>
                 <span className="text-xs text-slate-400 block font-medium">
                   {t.languageDetected}
@@ -288,10 +285,11 @@ Diagnostic Answers: ${JSON.stringify(qAnswers)}
                 </span>
               </div>
             </div>
+
             <select
               value={currentLanguage}
               onChange={(e) => onLanguageChange(e.target.value as SALanguageCode)}
-              className="bg-slate-900 border border-slate-700 text-slate-200 text-sm rounded-lg px-3 py-2 focus:ring-2 focus:ring-blue-500 outline-none"
+              className="bg-[#0c182e] border border-[#162a4a] text-slate-200 text-sm rounded-xl px-3 py-2 focus:ring-2 focus:ring-[#00f2fe] outline-none w-full sm:w-auto"
             >
               {SA_LANGUAGES.map((lang) => (
                 <option key={lang.code} value={lang.code}>
@@ -301,11 +299,10 @@ Diagnostic Answers: ${JSON.stringify(qAnswers)}
             </select>
           </div>
 
-          {/* Free-text input */}
           <div className="space-y-2">
-            <label className="text-sm font-semibold text-slate-200 flex items-center justify-between">
-              <span>Describe the Municipal Issue in your preferred language:</span>
-              <span className="text-xs text-blue-400 font-normal">
+            <label className="text-sm font-semibold text-slate-200 flex flex-col sm:flex-row sm:items-center justify-between gap-1">
+              <span>Describe the issue in your preferred language:</span>
+              <span className="text-xs text-[#00f2fe] font-normal">
                 Auto-detects all 11 SA official languages
               </span>
             </label>
@@ -314,7 +311,7 @@ Diagnostic Answers: ${JSON.stringify(qAnswers)}
               value={reportText}
               onChange={(e) => handleReportTextChange(e.target.value)}
               placeholder="e.g. Amanzi ayaphuma emgwaqweni e-Jan Smuts Ave kufuphi ne-garage..."
-              className="w-full bg-slate-950 border border-slate-800 rounded-xl p-4 text-slate-100 placeholder-slate-500 focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none text-base leading-relaxed"
+              className="w-full bg-[#050b16] border border-[#162a4a] rounded-2xl p-4 text-slate-100 placeholder-slate-500 focus:ring-2 focus:ring-[#00f2fe] outline-none text-sm sm:text-base leading-relaxed"
             />
           </div>
 
@@ -322,7 +319,7 @@ Diagnostic Answers: ${JSON.stringify(qAnswers)}
             <button
               disabled={!reportText.trim()}
               onClick={() => setStep(2)}
-              className="px-6 py-3 bg-blue-600 hover:bg-blue-500 disabled:opacity-50 text-white font-semibold rounded-xl shadow-lg transition-all flex items-center space-x-2"
+              className="w-full sm:w-auto px-6 py-3.5 blvnk-gradient-btn hover:opacity-90 disabled:opacity-50 text-white font-semibold rounded-2xl shadow-lg transition-all flex items-center justify-center space-x-2 active:scale-95"
             >
               <span>{t.nextStep}</span>
               <ChevronRight className="w-5 h-5" />
@@ -331,10 +328,9 @@ Diagnostic Answers: ${JSON.stringify(qAnswers)}
         </div>
       )}
 
-      {/* STEP 2: Guided Category & Diagnostic Questionnaire */}
+      {/* STEP 2: Category & Diagnostic Questionnaire */}
       {step === 2 && (
         <div className="space-y-6">
-          {/* Category Picker */}
           <div className="space-y-2">
             <label className="text-sm font-semibold text-slate-200">
               Select Incident Category:
@@ -352,10 +348,10 @@ Diagnostic Answers: ${JSON.stringify(qAnswers)}
                 <button
                   key={cat.id}
                   onClick={() => setCategory(cat.id as IncidentCategory)}
-                  className={`p-3 rounded-xl border text-left flex flex-col justify-between space-y-2 transition-all ${
+                  className={`p-3.5 rounded-2xl border text-left flex flex-col justify-between space-y-2 transition-all ${
                     category === cat.id
-                      ? 'bg-blue-600/20 border-blue-500 text-white ring-2 ring-blue-500/50'
-                      : 'bg-slate-950 border-slate-800 text-slate-400 hover:border-slate-700'
+                      ? 'bg-[#00f2fe]/10 border-[#00f2fe] text-white ring-2 ring-[#00f2fe]/50 shadow-lg shadow-cyan-500/10'
+                      : 'bg-[#050b16] border-[#162a4a] text-slate-400 hover:border-slate-600'
                   }`}
                 >
                   <span className="text-2xl">{cat.icon}</span>
@@ -365,8 +361,7 @@ Diagnostic Answers: ${JSON.stringify(qAnswers)}
             </div>
           </div>
 
-          {/* Diagnostic Question Prompts */}
-          <div className="bg-slate-950 p-4 rounded-xl border border-slate-800 space-y-4">
+          <div className="bg-[#050b16] p-4 sm:p-5 rounded-2xl border border-[#162a4a] space-y-4">
             <h3 className="text-sm font-bold text-slate-200">
               Diagnostic Context Questionnaire:
             </h3>
@@ -382,7 +377,7 @@ Diagnostic Answers: ${JSON.stringify(qAnswers)}
                     onChange={(e) =>
                       setQAnswers({ ...qAnswers, flowRate: e.target.value })
                     }
-                    className="w-full bg-slate-900 border border-slate-700 text-white rounded-lg p-2.5"
+                    className="w-full bg-[#0c182e] border border-[#162a4a] text-white rounded-xl p-3 text-sm focus:ring-2 focus:ring-[#00f2fe] outline-none"
                   >
                     <option value="trickle">Minor Slow Trickle</option>
                     <option value="gushing">Heavy Burst Stream across road</option>
@@ -401,7 +396,7 @@ Diagnostic Answers: ${JSON.stringify(qAnswers)}
                     onChange={(e) =>
                       setQAnswers({ ...qAnswers, trafficHazard: e.target.value })
                     }
-                    className="w-full bg-slate-900 border border-slate-700 text-white rounded-lg p-2.5"
+                    className="w-full bg-[#0c182e] border border-[#162a4a] text-white rounded-xl p-3 text-sm focus:ring-2 focus:ring-[#00f2fe] outline-none"
                   >
                     <option value="high">Deep Crater - Immediate Wheel Damage</option>
                     <option value="medium">Medium Pothole - Swerving Risk</option>
@@ -411,29 +406,9 @@ Diagnostic Answers: ${JSON.stringify(qAnswers)}
               </div>
             )}
 
-            {category === 'electricity_outage' && (
-              <div className="space-y-3 text-sm">
-                <div>
-                  <label className="text-slate-400 block mb-1">Outage Coverage Scope:</label>
-                  <select
-                    value={qAnswers.affectedRange}
-                    onChange={(e) =>
-                      setQAnswers({ ...qAnswers, affectedRange: e.target.value })
-                    }
-                    className="w-full bg-slate-900 border border-slate-700 text-white rounded-lg p-2.5"
-                  >
-                    <option value="suburb">Entire Suburb / Ward Blackout</option>
-                    <option value="street">Single Street / Cable Cut</option>
-                    <option value="single">Single Household Meter</option>
-                  </select>
-                </div>
-              </div>
-            )}
-
-            {/* Severity level picker */}
             <div>
               <label className="text-slate-400 block mb-1">Perceived Urgency Level:</label>
-              <div className="flex space-x-3">
+              <div className="flex flex-wrap gap-2.5">
                 {[
                   { id: 'low', label: t.urgencyLow, color: 'bg-emerald-500/20 text-emerald-400 border-emerald-500' },
                   { id: 'medium', label: t.urgencyMedium, color: 'bg-amber-500/20 text-amber-400 border-amber-500' },
@@ -442,10 +417,10 @@ Diagnostic Answers: ${JSON.stringify(qAnswers)}
                   <button
                     key={urg.id}
                     onClick={() => setSeverity(urg.id as UrgencyLevel)}
-                    className={`px-4 py-2 rounded-lg border text-xs font-bold transition-all ${
+                    className={`px-4 py-2 rounded-xl border text-xs font-bold transition-all ${
                       severity === urg.id
                         ? `${urg.color} ring-2 ring-slate-400`
-                        : 'bg-slate-900 border-slate-800 text-slate-500'
+                        : 'bg-[#0c182e] border-[#162a4a] text-slate-500'
                     }`}
                   >
                     {urg.label}
@@ -455,7 +430,7 @@ Diagnostic Answers: ${JSON.stringify(qAnswers)}
             </div>
           </div>
 
-          <div className="flex justify-between">
+          <div className="flex justify-between items-center">
             <button
               onClick={() => setStep(1)}
               className="px-4 py-2 text-slate-400 hover:text-white text-sm font-semibold flex items-center space-x-1"
@@ -465,7 +440,7 @@ Diagnostic Answers: ${JSON.stringify(qAnswers)}
             </button>
             <button
               onClick={() => setStep(3)}
-              className="px-6 py-3 bg-blue-600 hover:bg-blue-500 text-white font-semibold rounded-xl shadow-lg transition-all flex items-center space-x-2"
+              className="px-6 py-3.5 blvnk-gradient-btn text-white font-semibold rounded-2xl shadow-lg transition-all flex items-center space-x-2"
             >
               <span>{t.nextStep}</span>
               <ChevronRight className="w-5 h-5" />
@@ -478,7 +453,6 @@ Diagnostic Answers: ${JSON.stringify(qAnswers)}
       {step === 3 && (
         <div className="space-y-6">
           <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-            {/* Location Address Details Form */}
             <div className="space-y-4">
               <div>
                 <label className="text-xs font-semibold text-slate-300 block mb-1">
@@ -489,7 +463,7 @@ Diagnostic Answers: ${JSON.stringify(qAnswers)}
                   value={address}
                   onChange={(e) => setAddress(e.target.value)}
                   placeholder={t.addressPlaceholder}
-                  className="w-full bg-slate-950 border border-slate-800 rounded-xl p-3 text-white text-sm focus:ring-2 focus:ring-blue-500 outline-none"
+                  className="w-full bg-[#050b16] border border-[#162a4a] rounded-xl p-3 text-white text-sm focus:ring-2 focus:ring-[#00f2fe] outline-none"
                 />
               </div>
 
@@ -502,7 +476,7 @@ Diagnostic Answers: ${JSON.stringify(qAnswers)}
                   value={suburb}
                   onChange={(e) => setSuburb(e.target.value)}
                   placeholder={t.suburbPlaceholder}
-                  className="w-full bg-slate-950 border border-slate-800 rounded-xl p-3 text-white text-sm focus:ring-2 focus:ring-blue-500 outline-none"
+                  className="w-full bg-[#050b16] border border-[#162a4a] rounded-xl p-3 text-white text-sm focus:ring-2 focus:ring-[#00f2fe] outline-none"
                 />
               </div>
 
@@ -515,20 +489,20 @@ Diagnostic Answers: ${JSON.stringify(qAnswers)}
                   value={landmark}
                   onChange={(e) => setLandmark(e.target.value)}
                   placeholder={t.landmarkPlaceholder}
-                  className="w-full bg-slate-950 border border-slate-800 rounded-xl p-3 text-white text-sm focus:ring-2 focus:ring-blue-500 outline-none"
+                  className="w-full bg-[#050b16] border border-[#162a4a] rounded-xl p-3 text-white text-sm focus:ring-2 focus:ring-[#00f2fe] outline-none"
                 />
               </div>
 
-              <div className="p-3 bg-slate-950 rounded-xl border border-slate-800 text-xs space-y-2">
+              <div className="p-3 bg-[#050b16] rounded-xl border border-[#162a4a] text-xs space-y-2">
                 <div className="flex items-center justify-between text-slate-300 font-mono">
                   <span>Selected Pin GPS:</span>
-                  <span className="text-blue-400">
+                  <span className="text-[#00f2fe] font-bold">
                     {lat.toFixed(4)}, {lng.toFixed(4)}
                   </span>
                 </div>
                 <button
                   onClick={handleGetGps}
-                  className="w-full py-2 bg-slate-900 hover:bg-slate-800 text-blue-400 text-xs font-semibold rounded-lg border border-slate-700 flex items-center justify-center space-x-2 transition-all"
+                  className="w-full py-2.5 bg-[#0c182e] hover:bg-[#162a4a] text-[#00f2fe] text-xs font-semibold rounded-xl border border-[#162a4a] flex items-center justify-center space-x-2 transition-all"
                 >
                   <Navigation className="w-3.5 h-3.5" />
                   <span>{t.useCurrentGps}</span>
@@ -536,20 +510,19 @@ Diagnostic Answers: ${JSON.stringify(qAnswers)}
               </div>
             </div>
 
-            {/* Interactive Leaflet/Google Pin Map */}
             <div className="space-y-2">
               <label className="text-xs font-semibold text-slate-300 flex items-center space-x-1">
-                <MapPin className="w-4 h-4 text-blue-400" />
+                <MapPin className="w-4 h-4 text-[#00f2fe]" />
                 <span>{t.dragPinInstruction}</span>
               </label>
               <div
                 id="questionnaire-map"
-                className="w-full h-64 sm:h-72 rounded-xl border border-slate-800 bg-slate-950 overflow-hidden shadow-inner"
+                className="w-full h-64 sm:h-72 rounded-2xl border border-[#162a4a] bg-[#050b16] overflow-hidden shadow-inner"
               />
             </div>
           </div>
 
-          <div className="flex justify-between">
+          <div className="flex justify-between items-center">
             <button
               onClick={() => setStep(2)}
               className="px-4 py-2 text-slate-400 hover:text-white text-sm font-semibold flex items-center space-x-1"
@@ -560,7 +533,7 @@ Diagnostic Answers: ${JSON.stringify(qAnswers)}
             <button
               onClick={runAnalysis}
               disabled={isAnalyzing}
-              className="px-6 py-3 bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-500 hover:to-indigo-500 text-white font-semibold rounded-xl shadow-lg transition-all flex items-center space-x-2"
+              className="px-6 py-3.5 blvnk-gradient-btn text-white font-semibold rounded-2xl shadow-lg transition-all flex items-center space-x-2"
             >
               {isAnalyzing ? (
                 <>
@@ -581,32 +554,31 @@ Diagnostic Answers: ${JSON.stringify(qAnswers)}
       {/* STEP 4: Groq Qwen AI Analysis & Duplicate Reasoner */}
       {step === 4 && analysisResult && (
         <div className="space-y-6">
-          <div className="bg-slate-950 p-6 rounded-2xl border border-slate-800 space-y-6">
-            <div className="flex items-center justify-between border-b border-slate-800 pb-4">
+          <div className="bg-[#050b16] p-5 sm:p-6 rounded-2xl border border-[#162a4a] space-y-6">
+            <div className="flex items-center justify-between border-b border-[#162a4a] pb-4">
               <div className="flex items-center space-x-2">
                 <span className="w-2.5 h-2.5 rounded-full bg-emerald-400 animate-pulse" />
-                <h3 className="font-bold text-white text-lg">
+                <h3 className="font-bold text-white text-base sm:text-lg">
                   Groq Qwen 2.5 Structured AI Insights
                 </h3>
               </div>
-              <span className="text-xs font-mono bg-blue-500/10 text-blue-400 px-3 py-1 rounded-full border border-blue-500/20">
+              <span className="text-xs font-mono bg-[#00f2fe]/10 text-[#00f2fe] px-3 py-1 rounded-full border border-[#00f2fe]/30">
                 Model: {analysisResult.ai_model || 'qwen-2.5-32b'}
               </span>
             </div>
 
-            {/* Extracted Card Metadata */}
             <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
-              <div className="p-4 bg-slate-900/60 rounded-xl border border-slate-800">
-                <span className="text-xs text-slate-500 uppercase font-semibold block">
+              <div className="p-4 bg-[#0c182e] rounded-xl border border-[#162a4a]">
+                <span className="text-xs text-slate-400 uppercase font-semibold block">
                   Category Extracted
                 </span>
-                <span className="text-sm font-bold text-slate-200 mt-1 block">
+                <span className="text-sm font-bold text-slate-100 mt-1 block">
                   {analysisResult.category || category}
                 </span>
               </div>
 
-              <div className="p-4 bg-slate-900/60 rounded-xl border border-slate-800">
-                <span className="text-xs text-slate-500 uppercase font-semibold block">
+              <div className="p-4 bg-[#0c182e] rounded-xl border border-[#162a4a]">
+                <span className="text-xs text-slate-400 uppercase font-semibold block">
                   Assessed Urgency
                 </span>
                 <span
@@ -622,19 +594,18 @@ Diagnostic Answers: ${JSON.stringify(qAnswers)}
                 </span>
               </div>
 
-              <div className="p-4 bg-slate-900/60 rounded-xl border border-slate-800">
-                <span className="text-xs text-slate-500 uppercase font-semibold block">
+              <div className="p-4 bg-[#0c182e] rounded-xl border border-[#162a4a]">
+                <span className="text-xs text-slate-400 uppercase font-semibold block">
                   Language Detected
                 </span>
-                <span className="text-sm font-bold text-blue-400 mt-1 block">
+                <span className="text-sm font-bold text-[#00f2fe] mt-1 block">
                   {analysisResult.detected_language?.name || currentLanguage}
                 </span>
               </div>
             </div>
 
-            {/* Short Summary & Translation */}
             <div className="space-y-3">
-              <div className="p-4 bg-slate-900/40 rounded-xl border border-slate-800">
+              <div className="p-4 bg-[#0c182e] rounded-xl border border-[#162a4a]">
                 <span className="text-xs font-semibold text-slate-400 block mb-1">
                   1-Sentence Objective Summary:
                 </span>
@@ -644,8 +615,8 @@ Diagnostic Answers: ${JSON.stringify(qAnswers)}
               </div>
 
               {analysisResult.english_translation && (
-                <div className="p-4 bg-blue-950/30 rounded-xl border border-blue-900/40">
-                  <span className="text-xs font-semibold text-blue-400 block mb-1">
+                <div className="p-4 bg-[#0c182e] rounded-xl border border-[#00f2fe]/30">
+                  <span className="text-xs font-semibold text-[#00f2fe] block mb-1">
                     English Translation for Municipal Operators:
                   </span>
                   <p className="text-slate-300 text-sm">
@@ -654,30 +625,9 @@ Diagnostic Answers: ${JSON.stringify(qAnswers)}
                 </div>
               )}
             </div>
-
-            {/* Zero-Hallucination Duplicate reasoning */}
-            <div className="p-4 bg-slate-900/60 rounded-xl border border-slate-800 space-y-2">
-              <div className="flex items-center space-x-2">
-                {analysisResult.possible_duplicate ? (
-                  <AlertTriangle className="w-5 h-5 text-amber-400" />
-                ) : (
-                  <CheckCircle2 className="w-5 h-5 text-emerald-400" />
-                )}
-                <span className="text-sm font-bold text-white">
-                  {analysisResult.possible_duplicate
-                    ? 'Possible Existing Incident Duplicate Flagged'
-                    : 'No Duplicate Found - Unique Report'}
-                </span>
-              </div>
-              {analysisResult.duplicate_reasoning && (
-                <p className="text-xs text-slate-400">
-                  {analysisResult.duplicate_reasoning}
-                </p>
-              )}
-            </div>
           </div>
 
-          <div className="flex justify-between">
+          <div className="flex justify-between items-center">
             <button
               onClick={() => setStep(3)}
               className="px-4 py-2 text-slate-400 hover:text-white text-sm font-semibold flex items-center space-x-1"
@@ -687,7 +637,7 @@ Diagnostic Answers: ${JSON.stringify(qAnswers)}
             </button>
             <button
               onClick={handleFinalSubmit}
-              className="px-6 py-3 bg-emerald-600 hover:bg-emerald-500 text-white font-semibold rounded-xl shadow-lg transition-all flex items-center space-x-2"
+              className="px-6 py-3.5 bg-emerald-600 hover:bg-emerald-500 text-white font-semibold rounded-2xl shadow-lg transition-all flex items-center space-x-2"
             >
               <Send className="w-5 h-5" />
               <span>{t.submitToSupabase}</span>
@@ -696,29 +646,29 @@ Diagnostic Answers: ${JSON.stringify(qAnswers)}
         </div>
       )}
 
-      {/* STEP 5: Success & Supabase Confirmation */}
+      {/* STEP 5: Success Confirmation */}
       {step === 5 && isSubmitted && (
-        <div className="bg-emerald-950/30 border border-emerald-800/50 p-8 rounded-2xl text-center space-y-4">
-          <div className="w-16 h-16 bg-emerald-500/20 text-emerald-400 rounded-full flex items-center justify-center mx-auto border border-emerald-500/30">
+        <div className="bg-emerald-950/20 border border-emerald-800/40 p-8 rounded-3xl text-center space-y-4">
+          <div className="w-16 h-16 bg-emerald-500/20 text-emerald-400 rounded-2xl flex items-center justify-center mx-auto border border-emerald-500/30">
             <CheckCircle2 className="w-10 h-10" />
           </div>
 
           <h3 className="text-2xl font-bold text-white">
-            Incident Successfully Dispatched!
+            Incident Dispatched to BLVNK Engine!
           </h3>
           <p className="text-slate-300 text-sm max-w-lg mx-auto">
             Your report has been analyzed by Groq Qwen 2.5 and securely saved to the
             Supabase municipal database.
           </p>
 
-          <div className="p-3 bg-slate-950 max-w-xs mx-auto rounded-xl border border-slate-800 text-xs font-mono text-emerald-400">
+          <div className="p-3 bg-[#050b16] max-w-xs mx-auto rounded-xl border border-[#162a4a] text-xs font-mono text-[#00f2fe]">
             Tracking ID: #{submittedTicketId}
           </div>
 
           <div className="pt-4">
             <button
               onClick={handleReset}
-              className="px-6 py-3 bg-slate-800 hover:bg-slate-700 text-white font-semibold rounded-xl transition-all"
+              className="px-6 py-3.5 blvnk-gradient-btn text-white font-semibold rounded-2xl shadow-lg transition-all"
             >
               Submit Another Report
             </button>

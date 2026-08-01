@@ -1,1 +1,75 @@
 @import "tailwindcss";
+
+@layer base {
+  :root {
+    --blvnk-navy-dark: #050b16;
+    --blvnk-navy: #070f1e;
+    --blvnk-surface: #0c182e;
+    --blvnk-border: #162a4a;
+    --blvnk-cyan: #00f2fe;
+    --blvnk-blue: #0072ff;
+  }
+
+  body {
+    background-color: #070f1e;
+    color: #f1f5f9;
+    font-family: 'Outfit', 'Inter', system-ui, -apple-system, sans-serif;
+    -webkit-tap-highlight-color: transparent;
+    touch-action: manipulation;
+  }
+}
+
+/* BLVNK Brand Glassmorphism & Custom Styling */
+.blvnk-card {
+  background: rgba(12, 24, 46, 0.85);
+  backdrop-filter: blur(12px);
+  border: 1px solid rgba(22, 42, 74, 0.8);
+}
+
+.blvnk-card-hover {
+  transition: all 0.25s ease-in-out;
+}
+
+.blvnk-card-hover:hover {
+  border-color: rgba(0, 242, 254, 0.4);
+  box-shadow: 0 8px 30px rgba(0, 242, 254, 0.12);
+}
+
+.blvnk-gradient-text {
+  background: linear-gradient(135deg, #00f2fe 0%, #00c6ff 50%, #0072ff 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+}
+
+.blvnk-gradient-btn {
+  background: linear-gradient(135deg, #00c6ff 0%, #0072ff 100%);
+  transition: all 0.25s ease;
+}
+
+.blvnk-gradient-btn:hover {
+  background: linear-gradient(135deg, #00f2fe 0%, #0088ff 100%);
+  box-shadow: 0 4px 20px rgba(0, 198, 255, 0.35);
+}
+
+.blvnk-glow {
+  box-shadow: 0 0 25px rgba(0, 242, 254, 0.25);
+}
+
+/* Custom Scrollbar for all devices */
+::-webkit-scrollbar {
+  width: 6px;
+  height: 6px;
+}
+
+::-webkit-scrollbar-track {
+  background: #050b16;
+}
+
+::-webkit-scrollbar-thumb {
+  background: #162a4a;
+  border-radius: 9999px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: #00c6ff;
+}

@@ -11,7 +11,6 @@ import {
   Terminal,
   RotateCcw,
   Zap,
-  HelpCircle as QuestionIcon,
   BrainCircuit,
 } from 'lucide-react';
 import {
@@ -43,7 +42,6 @@ export function AnalysisPanel({
 }: AnalysisPanelProps) {
   const t = getTranslation(currentLanguage);
 
-  // View Mode: 'wizard' (Guided Questionnaire) or 'quick_analyze'
   const [viewMode, setViewMode] = useState<'wizard' | 'quick_analyze'>('wizard');
 
   const [reportText, setReportText] = useState(
@@ -108,7 +106,7 @@ export function AnalysisPanel({
       description: reportText,
       reportedAt: new Date().toISOString(),
       status: 'open',
-      reportedBy: 'Groq Qwen Citizen Dispatch',
+      reportedBy: 'BLVNK AI Dispatch',
       lat: Number(randomLat.toFixed(4)),
       lng: Number(randomLng.toFixed(4)),
       languageCode: currentLanguage,
@@ -121,43 +119,39 @@ export function AnalysisPanel({
 
   const result = analysisResponse?.data;
 
-  const matchedIncidentsList = existingIncidents.filter((inc) =>
-    result?.matched_incident_ids?.includes(inc.id)
-  );
-
   return (
     <div className="space-y-6">
       {/* Mode Switcher Tabs */}
-      <div className="flex items-center justify-between bg-slate-900 border border-slate-800 p-2 rounded-2xl">
+      <div className="flex flex-col sm:flex-row items-stretch sm:items-center justify-between bg-[#0c182e] border border-[#162a4a] p-2 rounded-2xl gap-2">
         <div className="flex space-x-2">
           <button
             onClick={() => setViewMode('wizard')}
-            className={`px-4 py-2 rounded-xl text-xs font-bold transition-all flex items-center space-x-2 ${
+            className={`px-4 py-2.5 rounded-xl text-xs font-bold transition-all flex items-center space-x-2 ${
               viewMode === 'wizard'
-                ? 'bg-blue-600 text-white shadow-lg shadow-blue-500/20'
-                : 'text-slate-400 hover:text-white hover:bg-slate-800'
+                ? 'blvnk-gradient-btn text-white shadow-lg shadow-cyan-500/20'
+                : 'text-slate-400 hover:text-white hover:bg-[#162a4a]'
             }`}
           >
-            <BrainCircuit className="w-4 h-4" />
+            <BrainCircuit className="w-4 h-4 text-[#00f2fe]" />
             <span>Guided Questionnaire Wizard (Recommended)</span>
           </button>
 
           <button
             onClick={() => setViewMode('quick_analyze')}
-            className={`px-4 py-2 rounded-xl text-xs font-bold transition-all flex items-center space-x-2 ${
+            className={`px-4 py-2.5 rounded-xl text-xs font-bold transition-all flex items-center space-x-2 ${
               viewMode === 'quick_analyze'
-                ? 'bg-blue-600 text-white shadow-lg shadow-blue-500/20'
-                : 'text-slate-400 hover:text-white hover:bg-slate-800'
+                ? 'blvnk-gradient-btn text-white shadow-lg shadow-cyan-500/20'
+                : 'text-slate-400 hover:text-white hover:bg-[#162a4a]'
             }`}
           >
-            <Sparkles className="w-4 h-4" />
+            <Sparkles className="w-4 h-4 text-cyan-400" />
             <span>Raw Text Groq Qwen Analyzer</span>
           </button>
         </div>
 
-        <div className="hidden sm:flex items-center space-x-2 text-xs font-mono text-emerald-400 bg-emerald-950/40 border border-emerald-800/50 px-3 py-1 rounded-xl">
-          <span className="w-2 h-2 rounded-full bg-emerald-400 animate-pulse" />
-          <span>Groq Qwen 2.5 Active</span>
+        <div className="hidden sm:flex items-center space-x-2 text-xs font-mono text-[#00f2fe] bg-[#00f2fe]/10 border border-[#00f2fe]/30 px-3 py-1.5 rounded-xl">
+          <span className="w-2 h-2 rounded-full bg-[#00f2fe] animate-pulse" />
+          <span>BLVNK Groq Qwen 2.5 Active</span>
         </div>
       </div>
 
@@ -175,12 +169,14 @@ export function AnalysisPanel({
       {/* VIEW MODE 2: Raw Text Qwen Analyzer */}
       {viewMode === 'quick_analyze' && (
         <div className="space-y-6">
-          <div className="bg-slate-900 border border-slate-800 rounded-2xl p-6 shadow-xl space-y-4">
+          <div className="blvnk-card rounded-3xl p-4 sm:p-6 shadow-xl space-y-4">
             <div className="flex items-center justify-between">
               <div className="flex items-center space-x-3">
-                <div className="p-2 bg-blue-500/10 text-blue-400 rounded-xl">
-                  <Sparkles className="w-5 h-5" />
-                </div>
+                <img
+                  src="/logo.jpg"
+                  alt="BLVNK Logo"
+                  className="w-10 h-10 rounded-xl object-cover border border-[#00f2fe]/30 shrink-0"
+                />
                 <div>
                   <h2 className="font-bold text-white text-base">
                     Multi-Lingual Community Report Ingestion
@@ -200,30 +196,29 @@ export function AnalysisPanel({
               </button>
             </div>
 
-            {/* Text Area Input */}
             <textarea
               rows={4}
               value={reportText}
               onChange={(e) => setReportText(e.target.value)}
               placeholder="Type complaint in isiZulu, isiXhosa, Afrikaans, Sepedi, Setswana, English, etc..."
-              className="w-full p-4 rounded-xl border border-slate-800 bg-slate-950 text-white text-sm focus:ring-2 focus:ring-blue-500 outline-none leading-relaxed"
+              className="w-full p-4 rounded-2xl border border-[#162a4a] bg-[#050b16] text-white text-sm focus:ring-2 focus:ring-[#00f2fe] outline-none leading-relaxed"
             />
 
             <div className="flex items-center justify-between pt-2">
               <div className="flex items-center gap-2 text-xs text-slate-400">
                 <Zap className="w-4 h-4 text-amber-400" />
-                <span>Groq Qwen 2.5 Model Engine</span>
+                <span>BLVNK Groq Qwen 2.5 Engine</span>
               </div>
 
               <button
                 onClick={() => handleRunAnalysis()}
                 disabled={loading || !reportText.trim()}
-                className="px-6 py-2.5 rounded-xl bg-blue-600 hover:bg-blue-500 disabled:opacity-50 text-white font-semibold text-sm shadow-lg flex items-center gap-2 transition"
+                className="px-6 py-3 rounded-2xl blvnk-gradient-btn disabled:opacity-50 text-white font-semibold text-sm shadow-lg flex items-center gap-2 transition active:scale-95"
               >
                 {loading ? (
                   <>
                     <div className="w-4 h-4 border-2 border-white/30 border-t-white rounded-full animate-spin" />
-                    <span>Analyzing with Groq Qwen...</span>
+                    <span>Analyzing with Qwen AI...</span>
                   </>
                 ) : (
                   <>
@@ -242,10 +237,9 @@ export function AnalysisPanel({
             )}
           </div>
 
-          {/* Results Display */}
           {result && (
-            <div className="bg-slate-900 border border-slate-800 rounded-2xl p-6 shadow-xl space-y-6">
-              <div className="flex items-center justify-between border-b border-slate-800 pb-4">
+            <div className="blvnk-card rounded-3xl p-6 shadow-xl space-y-6">
+              <div className="flex items-center justify-between border-b border-[#162a4a] pb-4">
                 <div>
                   <h3 className="text-lg font-bold text-white">
                     Groq Qwen 2.5 Extracted Insights
@@ -256,14 +250,14 @@ export function AnalysisPanel({
                 </div>
                 <button
                   onClick={() => setShowRawJson(!showRawJson)}
-                  className="px-3 py-1 rounded bg-slate-800 text-xs text-slate-300 font-mono"
+                  className="px-3 py-1 rounded-lg bg-[#050b16] text-xs text-slate-300 font-mono border border-[#162a4a]"
                 >
                   {showRawJson ? 'Hide JSON' : 'View JSON'}
                 </button>
               </div>
 
               <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
-                <div className="bg-slate-950 p-4 rounded-xl border border-slate-800">
+                <div className="bg-[#050b16] p-4 rounded-xl border border-[#162a4a]">
                   <span className="text-xs text-slate-500 block uppercase font-semibold">
                     Category
                   </span>
@@ -272,7 +266,7 @@ export function AnalysisPanel({
                   </div>
                 </div>
 
-                <div className="bg-slate-950 p-4 rounded-xl border border-slate-800">
+                <div className="bg-[#050b16] p-4 rounded-xl border border-[#162a4a]">
                   <span className="text-xs text-slate-500 block uppercase font-semibold">
                     Location
                   </span>
@@ -281,17 +275,17 @@ export function AnalysisPanel({
                   </span>
                 </div>
 
-                <div className="bg-slate-950 p-4 rounded-xl border border-slate-800">
+                <div className="bg-[#050b16] p-4 rounded-xl border border-[#162a4a]">
                   <span className="text-xs text-slate-500 block uppercase font-semibold">
                     Language Detected
                   </span>
-                  <span className="text-sm font-bold text-blue-400 mt-1 block">
+                  <span className="text-sm font-bold text-[#00f2fe] mt-1 block">
                     {result.detected_language?.name || currentLanguage}
                   </span>
                 </div>
               </div>
 
-              <div className="bg-slate-950 p-4 rounded-xl border border-slate-800 space-y-2">
+              <div className="bg-[#050b16] p-4 rounded-xl border border-[#162a4a] space-y-2">
                 <span className="text-xs text-slate-400 font-semibold block">
                   Short Summary:
                 </span>
@@ -299,7 +293,7 @@ export function AnalysisPanel({
                   {result.short_summary}
                 </p>
                 {result.english_translation && (
-                  <p className="text-blue-300 text-xs pt-1 border-t border-slate-800/60">
+                  <p className="text-[#00f2fe] text-xs pt-1 border-t border-[#162a4a]">
                     <strong>English Translation:</strong> {result.english_translation}
                   </p>
                 )}
@@ -308,7 +302,7 @@ export function AnalysisPanel({
               <div className="flex justify-end space-x-3">
                 <button
                   onClick={handleCreateNewTicketFromAnalysis}
-                  className="px-5 py-2.5 bg-blue-600 hover:bg-blue-500 text-white font-semibold text-xs rounded-xl shadow-lg flex items-center space-x-2"
+                  className="px-5 py-2.5 blvnk-gradient-btn text-white font-semibold text-xs rounded-xl shadow-lg flex items-center space-x-2"
                 >
                   <PlusCircle className="w-4 h-4" />
                   <span>Dispatch Ticket to Supabase</span>
@@ -316,7 +310,7 @@ export function AnalysisPanel({
               </div>
 
               {showRawJson && (
-                <pre className="p-4 bg-slate-950 rounded-xl text-xs text-emerald-400 font-mono overflow-x-auto border border-slate-800">
+                <pre className="p-4 bg-[#050b16] rounded-xl text-xs text-emerald-400 font-mono overflow-x-auto border border-[#162a4a]">
                   {JSON.stringify(result, null, 2)}
                 </pre>
               )}
