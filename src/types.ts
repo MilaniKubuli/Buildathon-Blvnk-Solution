@@ -11,11 +11,33 @@ export type UrgencyLevel = 'low' | 'medium' | 'high';
 
 export type TicketStatus = 'open' | 'in_progress' | 'resolved' | 'duplicate';
 
+export type SALanguageCode =
+  | 'en'
+  | 'zu'
+  | 'xh'
+  | 'af'
+  | 'nso'
+  | 'tn'
+  | 'st'
+  | 'ts'
+  | 'ss'
+  | 've'
+  | 'nr';
+
+export interface SALanguage {
+  code: SALanguageCode;
+  name: string;
+  nativeName: string;
+  flag: string;
+}
+
 export interface Incident {
   id: string;
   title: string;
   category: IncidentCategory;
   location: string;
+  suburb?: string;
+  landmark?: string;
   urgency: UrgencyLevel;
   description: string;
   reportedAt: string;
@@ -25,17 +47,31 @@ export interface Incident {
   votes?: number;
   lat?: number;
   lng?: number;
+  languageCode?: SALanguageCode;
+  aiConfidence?: number;
+}
+
+export interface DetectedLanguageInfo {
+  code: SALanguageCode;
+  name: string;
+  confidence: number;
 }
 
 export interface AnalysisResult {
   category: IncidentCategory | null;
   location: string | null;
+  suburb?: string | null;
+  landmark?: string | null;
   urgency: UrgencyLevel;
   short_summary: string;
+  english_translation?: string | null;
   clarification_question: string | null;
   possible_duplicate: boolean;
   matched_incident_ids: string[];
   duplicate_reasoning: string | null;
+  detected_language?: DetectedLanguageInfo;
+  ai_provider?: string;
+  ai_model?: string;
 }
 
 export interface AnalysisResponse {
@@ -57,4 +93,5 @@ export interface SamplePreset {
   badge: string;
   description: string;
   reportText: string;
+  languageCode?: SALanguageCode;
 }

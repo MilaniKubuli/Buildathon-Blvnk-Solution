@@ -6,10 +6,19 @@ import { IncidentMap } from './components/IncidentMap';
 import { SystemPromptViewer } from './components/SystemPromptViewer';
 import { AddIncidentModal } from './components/AddIncidentModal';
 import { INITIAL_INCIDENTS } from './data/mockIncidents';
-import { Incident, TicketStatus } from './types';
-import { ShieldCheck, Cpu, Database, FileCode2, Sparkles } from 'lucide-react';
+import { Incident, TicketStatus, SALanguageCode } from './types';
+import {
+  fetchIncidentsFromSupabase,
+  saveIncidentToSupabase,
+  updateIncidentStatusInSupabase,
+  deleteIncidentFromSupabase,
+} from './lib/supabase';
+import { getTranslation } from './lib/i18n';
 
 export default function App() {
+  const [currentLanguage, setCurrentLanguage] = useState<SALanguageCode>('en');
+  const t = getTranslation(currentLanguage);
+
   const [incidents, setIncidents] = useState<Incident[]>(() => {
     try {
       const saved = localStorage.getItem('municipal_incidents_db');
@@ -26,6 +35,17 @@ export default function App() {
   const [activeTab, setActiveTab] = useState<'analyzer' | 'map' | 'database' | 'prompt_spec'>('analyzer');
   const [isAddModalOpen, setIsAddModalOpen] = useState(false);
 
+  // Sync with Supabase on mount
+  useEffect(() => {
+    async function loadSupabaseData() {
+      const remoteData = await fetchIncidentsFromSupabase();
+      if (remoteData && remoteData.length > 0) {
+        setIncidents(remoteData);
+      }
+    }
+    loadSupabaseData();
+  }, []);
+
   // Sync with localStorage
   useEffect(() => {
     try {
@@ -35,43 +55,48 @@ export default function App() {
     }
   }, [incidents]);
 
-  const handleAddIncident = (newIncident: Incident) => {
+  const handleAddIncident = async (newIncident: Incident) => {
     setIncidents((prev) => [newIncident, ...prev]);
+    await saveIncidentToSupabase(newIncident);
   };
 
-  const handleDeleteIncident = (id: string) => {
+  const handleDeleteIncident = async (id: string) => {
     setIncidents((prev) => prev.filter((item) => item.id !== id));
+    await deleteIncidentFromSupabase(id);
   };
 
-  const handleUpdateStatus = (id: string, status: TicketStatus) => {
+  const handleUpdateStatus = async (id: string, status: TicketStatus) => {
     setIncidents((prev) =>
       prev.map((item) => (item.id === id ? { ...item, status } : item))
     );
+    await updateIncidentStatusInSupabase(id, status);
   };
 
-  const handleLinkDuplicate = (newReportText: string, matchedId: string) => {
-    const baseLat = 37.7749;
-    const baseLng = -122.4194;
+  const handleLinkDuplicate = async (newReportText: string, matchedId: string) => {
+    const baseLat = -26.1952;
+    const baseLng = 28.034;
     const randomLat = baseLat + (Math.random() - 0.5) * 0.03;
     const randomLng = baseLng + (Math.random() - 0.5) * 0.03;
 
     const dupTicket: Incident = {
-      id: `INC-${Math.floor(100 + Math.random() * 900)}`,
+      id: `INC-${Math.floor(1000 + Math.random() * 9000)}`,
       title: `Duplicate Report of #${matchedId}`,
       category: 'water_leak',
-      location: 'Overlapping location',
+      location: 'Johannesburg Overlapping Location',
       urgency: 'medium',
       description: newReportText,
       reportedAt: new Date().toISOString(),
       status: 'duplicate',
       duplicateOfId: matchedId,
-      reportedBy: 'Citizen Ingestion',
+      reportedBy: 'Groq Qwen AI Deduplication',
       votes: 1,
       lat: Number(randomLat.toFixed(4)),
       lng: Number(randomLng.toFixed(4)),
+      languageCode: currentLanguage,
     };
 
     setIncidents((prev) => [dupTicket, ...prev]);
+    await saveIncidentToSupabase(dupTicket);
   };
 
   const handleResetSeed = () => {
@@ -97,6 +122,8 @@ export default function App() {
         setActiveTab={setActiveTab}
         onResetSeed={handleResetSeed}
         onOpenAddModal={() => setIsAddModalOpen(true)}
+        currentLanguage={currentLanguage}
+        onLanguageChange={setCurrentLanguage}
       />
 
       {/* Main Content Area */}
@@ -106,6 +133,8 @@ export default function App() {
             existingIncidents={incidents}
             onAddTicket={handleAddIncident}
             onLinkDuplicate={handleLinkDuplicate}
+            currentLanguage={currentLanguage}
+            onLanguageChange={setCurrentLanguage}
           />
         )}
 
@@ -136,13 +165,13 @@ export default function App() {
           <div className="flex items-center space-x-2">
             <span className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse" />
             <span className="font-semibold text-slate-300">
-              Municipal AI Dispatch Reasoner Active
+              {t.appTitle} Active
             </span>
             <span className="text-slate-500">|</span>
-            <span>Gemini 3.6 Flash Engine</span>
+            <span>Groq Qwen 2.5 Engine & Supabase DB</span>
           </div>
           <div className="text-slate-500">
-            Hyper-Local Utility Reporting MVP • Zero Hallucination Duplicate Reasoning
+            Supports All 11 Official South African Languages • Interactive Location Refinement & Questionnaire Wizard
           </div>
         </div>
       </footer>

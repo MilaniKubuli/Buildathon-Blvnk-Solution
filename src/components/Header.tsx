@@ -1,14 +1,18 @@
 import React from 'react';
 import {
-  ShieldAlert,
   Cpu,
   RefreshCw,
   PlusCircle,
   FileCode2,
   Database,
-  Search,
   MapPin,
+  Globe,
+  DatabaseZap,
+  Sparkles,
 } from 'lucide-react';
+import { SALanguageCode } from '../types';
+import { SA_LANGUAGES, getTranslation } from '../lib/i18n';
+import { isSupabaseConfigured } from '../lib/supabase';
 
 interface HeaderProps {
   totalIncidents: number;
@@ -18,6 +22,8 @@ interface HeaderProps {
   setActiveTab: (tab: 'analyzer' | 'database' | 'map' | 'prompt_spec') => void;
   onResetSeed: () => void;
   onOpenAddModal: () => void;
+  currentLanguage: SALanguageCode;
+  onLanguageChange: (lang: SALanguageCode) => void;
 }
 
 export function Header({
@@ -28,131 +34,147 @@ export function Header({
   setActiveTab,
   onResetSeed,
   onOpenAddModal,
+  currentLanguage,
+  onLanguageChange,
 }: HeaderProps) {
+  const t = getTranslation(currentLanguage);
+
   return (
     <header className="sticky top-0 z-30 bg-slate-900 text-white border-b border-slate-800 shadow-md shrink-0">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="flex items-center justify-between h-16">
           {/* Brand & AI Engine Title */}
           <div className="flex items-center space-x-3">
-            <div className="w-8 h-8 bg-blue-500 rounded flex items-center justify-center font-bold text-base text-white shadow-sm">
-              C
+            <div className="w-9 h-9 bg-gradient-to-br from-blue-500 to-indigo-600 rounded-xl flex items-center justify-center font-bold text-base text-white shadow-md shadow-blue-500/20">
+              <Sparkles className="w-5 h-5" />
             </div>
             <div>
               <div className="flex items-center gap-2">
-                <h1 className="font-semibold tracking-tight text-base sm:text-lg text-white">
-                  CIVIC-AI Dispatch Reasoning Engine
+                <h1 className="font-bold tracking-tight text-base sm:text-lg text-white">
+                  {t.appTitle}
                 </h1>
-                <span className="hidden sm:inline-flex items-center px-2 py-0.5 rounded text-[10px] font-mono font-semibold bg-blue-900/50 text-blue-200 border border-blue-700 uppercase">
-                  MUN-8842-X
+                <span className="hidden sm:inline-flex items-center gap-1 px-2 py-0.5 rounded text-[10px] font-mono font-semibold bg-emerald-900/50 text-emerald-300 border border-emerald-700/50 uppercase">
+                  <span className="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse" />
+                  Qwen 2.5 Groq AI
                 </span>
               </div>
-              <p className="text-[11px] text-slate-400 hidden sm:block font-mono">
-                AGENT_ID: MUN-8842-X | STATUS: ACTIVE_DISPATCH_REASONING
+              <p className="text-[11px] text-slate-400 hidden sm:block">
+                {t.appSubtitle}
               </p>
             </div>
           </div>
 
-          {/* Quick Metrics Bar */}
-          <div className="hidden lg:flex items-center space-x-6 text-xs border-x border-slate-800 px-6 py-2">
-            <div>
-              <span className="text-slate-400 block text-[10px] uppercase tracking-widest font-bold">
-                Active Registry
-              </span>
-              <span className="font-bold text-slate-200 text-xs font-mono">
-                {totalIncidents} INCIDENTS
-              </span>
-            </div>
-            <div className="h-6 w-px bg-slate-800" />
-            <div>
-              <span className="text-slate-400 block text-[10px] uppercase tracking-widest font-bold">
-                High Priority
-              </span>
-              <span className="font-bold text-rose-400 text-xs font-mono">
-                {highUrgencyCount} URGENT
-              </span>
-            </div>
-            <div className="h-6 w-px bg-slate-800" />
-            <div>
-              <span className="text-slate-400 block text-[10px] uppercase tracking-widest font-bold">
-                Duplicates Flagged
-              </span>
-              <span className="font-bold text-amber-400 text-xs font-mono">
-                {duplicateCount} MATCHES
+          {/* 11 SA Languages Dropdown & Supabase Status Badge */}
+          <div className="flex items-center space-x-3">
+            {/* Supabase Status */}
+            <div
+              className={`hidden md:flex items-center space-x-1.5 px-2.5 py-1 rounded-lg text-xs font-mono border ${
+                isSupabaseConfigured
+                  ? 'bg-emerald-950/60 border-emerald-800/80 text-emerald-400'
+                  : 'bg-amber-950/40 border-amber-800/60 text-amber-300'
+              }`}
+              title={
+                isSupabaseConfigured
+                  ? 'Connected to live Supabase Postgres backend'
+                  : 'Operating in local browser database with Supabase fallback'
+              }
+            >
+              <DatabaseZap className="w-3.5 h-3.5" />
+              <span>
+                {isSupabaseConfigured ? t.supabaseConnected : t.supabaseLocal}
               </span>
             </div>
-          </div>
 
-          {/* Controls & Reset */}
-          <div className="flex items-center space-x-2 sm:space-x-3">
+            {/* 11 SA Languages Selector */}
+            <div className="flex items-center space-x-1 bg-slate-950 border border-slate-800 rounded-xl px-2.5 py-1">
+              <Globe className="w-4 h-4 text-blue-400" />
+              <select
+                value={currentLanguage}
+                onChange={(e) => onLanguageChange(e.target.value as SALanguageCode)}
+                className="bg-transparent text-xs font-bold text-slate-200 outline-none cursor-pointer py-0.5"
+              >
+                {SA_LANGUAGES.map((lang) => (
+                  <option
+                    key={lang.code}
+                    value={lang.code}
+                    className="bg-slate-900 text-white"
+                  >
+                    {lang.flag} {lang.nativeName}
+                  </option>
+                ))}
+              </select>
+            </div>
+
+            {/* Controls */}
             <button
               onClick={onOpenAddModal}
-              className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded text-xs font-bold uppercase tracking-wide bg-blue-600 hover:bg-blue-700 text-white transition-colors"
-              title="Add a custom incident directly to existing database"
+              className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl text-xs font-bold bg-blue-600 hover:bg-blue-500 text-white shadow-lg transition-colors"
             >
               <PlusCircle className="w-3.5 h-3.5" />
-              <span className="hidden sm:inline">Add Incident</span>
+              <span className="hidden sm:inline">{t.reportIncidentBtn}</span>
             </button>
 
             <button
               onClick={onResetSeed}
-              className="inline-flex items-center gap-1.5 px-2.5 py-1.5 rounded text-xs font-medium text-slate-400 hover:text-slate-200 hover:bg-slate-800 transition"
-              title="Reset sample incidents to initial state"
+              className="inline-flex items-center gap-1 px-2.5 py-1.5 rounded-xl text-xs font-medium text-slate-400 hover:text-slate-200 hover:bg-slate-800 transition"
+              title={t.resetDatabase}
             >
               <RefreshCw className="w-3.5 h-3.5" />
-              <span className="hidden sm:inline">Reset</span>
+              <span className="hidden sm:inline">{t.resetDatabase}</span>
             </button>
           </div>
         </div>
 
         {/* Navigation Tabs */}
-        <div className="flex space-x-2 border-t border-slate-800/80 pt-1 pb-2">
+        <div className="flex space-x-2 border-t border-slate-800/80 pt-1 pb-2 overflow-x-auto">
           <button
             onClick={() => setActiveTab('analyzer')}
-            className={`inline-flex items-center gap-2 px-3.5 py-1.5 rounded text-xs font-bold uppercase tracking-wider transition ${
+            className={`inline-flex items-center gap-2 px-3.5 py-1.5 rounded-lg text-xs font-bold uppercase tracking-wider transition ${
               activeTab === 'analyzer'
-                ? 'bg-blue-600 text-white shadow-sm'
+                ? 'bg-blue-600 text-white shadow-md'
                 : 'text-slate-400 hover:text-slate-200 hover:bg-slate-800/60'
             }`}
           >
-            <Cpu className="w-3.5 h-3.5" />
-            <span>AI Reasoning Engine</span>
+            <Cpu className="w-3.5 h-3.5 text-blue-300" />
+            <span>{t.tabQuestionnaire}</span>
           </button>
 
           <button
             onClick={() => setActiveTab('map')}
-            className={`inline-flex items-center gap-2 px-3.5 py-1.5 rounded text-xs font-bold uppercase tracking-wider transition ${
+            className={`inline-flex items-center gap-2 px-3.5 py-1.5 rounded-lg text-xs font-bold uppercase tracking-wider transition ${
               activeTab === 'map'
-                ? 'bg-blue-600 text-white shadow-sm'
+                ? 'bg-blue-600 text-white shadow-md'
                 : 'text-slate-400 hover:text-slate-200 hover:bg-slate-800/60'
             }`}
           >
-            <MapPin className="w-3.5 h-3.5 text-blue-300" />
-            <span>Real-Time Map</span>
+            <MapPin className="w-3.5 h-3.5 text-emerald-400" />
+            <span>{t.tabMap}</span>
           </button>
 
           <button
             onClick={() => setActiveTab('database')}
-            className={`inline-flex items-center gap-2 px-3.5 py-1.5 rounded text-xs font-bold uppercase tracking-wider transition ${
+            className={`inline-flex items-center gap-2 px-3.5 py-1.5 rounded-lg text-xs font-bold uppercase tracking-wider transition ${
               activeTab === 'database'
-                ? 'bg-blue-600 text-white shadow-sm'
+                ? 'bg-blue-600 text-white shadow-md'
                 : 'text-slate-400 hover:text-slate-200 hover:bg-slate-800/60'
             }`}
           >
-            <Database className="w-3.5 h-3.5" />
-            <span>Incident Log ({totalIncidents})</span>
+            <Database className="w-3.5 h-3.5 text-indigo-400" />
+            <span>
+              {t.tabDatabase} ({totalIncidents})
+            </span>
           </button>
 
           <button
             onClick={() => setActiveTab('prompt_spec')}
-            className={`inline-flex items-center gap-2 px-3.5 py-1.5 rounded text-xs font-bold uppercase tracking-wider transition ${
+            className={`inline-flex items-center gap-2 px-3.5 py-1.5 rounded-lg text-xs font-bold uppercase tracking-wider transition ${
               activeTab === 'prompt_spec'
-                ? 'bg-blue-600 text-white shadow-sm'
+                ? 'bg-blue-600 text-white shadow-md'
                 : 'text-slate-400 hover:text-slate-200 hover:bg-slate-800/60'
             }`}
           >
-            <FileCode2 className="w-3.5 h-3.5 text-emerald-400" />
-            <span>Prompt & Schema Spec</span>
+            <FileCode2 className="w-3.5 h-3.5 text-amber-400" />
+            <span>{t.tabPromptSpec}</span>
           </button>
         </div>
       </div>
