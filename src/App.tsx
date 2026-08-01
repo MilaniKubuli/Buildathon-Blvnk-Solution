@@ -41,7 +41,7 @@ export default function App() {
     return INITIAL_INCIDENTS;
   });
 
-  const [activeTab, setActiveTab] = useState<'analyzer' | 'map' | 'database' | 'prompt_spec'>('analyzer');
+  const [activeTab, setActiveTab] = useState<'analyzer' | 'map' | 'database' | 'prompt_spec'>('database');
   const [isAddModalOpen, setIsAddModalOpen] = useState(false);
 
   // Sync with Supabase on mount

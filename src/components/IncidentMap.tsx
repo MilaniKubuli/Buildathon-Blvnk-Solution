@@ -90,8 +90,9 @@ function getCoordinates(inc: Incident, index: number): { lat: number; lng: numbe
     return { lat: inc.lat, lng: inc.lng };
   }
   // Fallback grid offsets around city center (37.7749, -122.4194)
-  const baseLat = 37.7749;
-  const baseLng = -122.4194;
+  // Fallback grid offsets around South Africa Metro (-26.2041, 28.0473)
+  const baseLat = -26.2041;
+  const baseLng = 28.0473;
   const hash = inc.id.split('').reduce((acc, char) => acc + char.charCodeAt(0), 0);
   const offsetLat = ((hash % 100) - 50) * 0.0008;
   const offsetLng = (((hash * 3) % 100) - 50) * 0.0008;
@@ -142,10 +143,10 @@ export function IncidentMap({
   useEffect(() => {
     if (!mapContainerRef.current || mapInstanceRef.current) return;
 
-    // Create Leaflet map centered at Municipal City Center
+    // Create Leaflet map centered at South Africa Metro
     const map = L.map(mapContainerRef.current, {
-      center: [37.7749, -122.4194],
-      zoom: 13,
+      center: [-26.2041, 28.0473],
+      zoom: 12,
       zoomControl: false,
     });
 

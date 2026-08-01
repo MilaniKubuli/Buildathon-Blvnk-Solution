@@ -19,7 +19,7 @@ export async function POST(req: Request) {
     let provider = 'Groq Qwen AI';
     let modelUsed = process.env.GROQ_MODEL || 'qwen-2.5-32b';
 
-    const groqKey = process.env.GROQ_API_KEY;
+    const groqKey = process.env.GROQ_API_KEY || '';
 
     if (groqKey) {
       const systemInstruction = `You are a state-of-the-art municipal dispatch AI reasoner for South African municipalities, powered by Groq Qwen 2.5.
