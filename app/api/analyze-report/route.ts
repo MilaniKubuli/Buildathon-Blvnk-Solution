@@ -1,5 +1,19 @@
 import { NextResponse } from 'next/server';
 
+const NLLB_LANG_MAP: Record<string, string> = {
+  en: 'eng_Latn',
+  zu: 'zul_Latn',
+  xh: 'xho_Latn',
+  af: 'afr_Latn',
+  nso: 'nso_Latn',
+  tn: 'tsn_Latn',
+  st: 'sot_Latn',
+  ts: 'tso_Latn',
+  ss: 'ssw_Latn',
+  ve: 'ven_Latn',
+  nr: 'nbl_Latn',
+};
+
 export async function POST(req: Request) {
   const startTime = Date.now();
 
@@ -16,13 +30,48 @@ export async function POST(req: Request) {
 
     const incidentsArray = Array.isArray(existingIncidents) ? existingIncidents : [];
     let rawText = '';
-    let provider = 'Groq Qwen AI';
+    let provider = 'Groq Qwen 2.5 + Meta NLLB-200';
     let modelUsed = process.env.GROQ_MODEL || 'qwen-2.5-32b';
+    const nllbModelUsed = process.env.NLLB_MODEL || 'facebook/nllb-200-distilled-600M';
 
     const groqKey = process.env.GROQ_API_KEY || '';
+    const hfToken = process.env.HF_API_TOKEN || '';
+
+    // Hugging Face NLLB-200 Translation Call if requested/available
+    let nllbTranslation: string | null = null;
+    if (hfToken && languageCode && languageCode !== 'en' && NLLB_LANG_MAP[languageCode]) {
+      try {
+        const srcLang = NLLB_LANG_MAP[languageCode];
+        const hfRes = await fetch(
+          `https://api-inference.huggingface.co/models/${nllbModelUsed}`,
+          {
+            method: 'POST',
+            headers: {
+              'Content-Type': 'application/json',
+              Authorization: `Bearer ${hfToken}`,
+            },
+            body: JSON.stringify({
+              inputs: newReport.trim(),
+              parameters: {
+                src_lang: srcLang,
+                tgt_lang: 'eng_Latn',
+              },
+            }),
+          }
+        );
+        if (hfRes.ok) {
+          const hfJson = await hfRes.json();
+          if (Array.isArray(hfJson) && hfJson[0]?.translation_text) {
+            nllbTranslation = hfJson[0].translation_text;
+          }
+        }
+      } catch (hfErr) {
+        console.warn('HF NLLB-200 translation warning:', hfErr);
+      }
+    }
 
     if (groqKey) {
-      const systemInstruction = `You are a state-of-the-art municipal dispatch AI reasoner for South African municipalities, powered by Groq Qwen 2.5.
+      const systemInstruction = `You are a state-of-the-art municipal dispatch AI reasoner for South African municipalities, powered by Groq Qwen 2.5 and Meta NLLB-200.
 Analyze the input report ("New_Report") and compare it against the JSON array ("Existing_Incidents").
 Perform language detection across all 11 official South African languages (en, zu, xh, af, nso, tn, st, ts, ss, ve, nr).
 If the report is not in English, provide an accurate English translation.
@@ -54,6 +103,8 @@ Return ONLY a raw, valid JSON object matching this schema:
 ${newReport.trim()}
 
 Target_Language_Context: ${languageCode || 'Auto-detect'}
+
+NLLB200_PreTranslation: ${nllbTranslation || 'None'}
 
 Existing_Incidents:
 ${JSON.stringify(incidentsArray, null, 2)}`;
@@ -111,7 +162,7 @@ ${JSON.stringify(incidentsArray, null, 2)}`;
         ? parsedResult.urgency
         : 'medium',
       short_summary: parsedResult.short_summary || newReport.slice(0, 100),
-      english_translation: parsedResult.english_translation || null,
+      english_translation: parsedResult.english_translation || nllbTranslation || null,
       clarification_question: parsedResult.clarification_question || null,
       possible_duplicate: Boolean(parsedResult.possible_duplicate),
       matched_incident_ids: Array.isArray(parsedResult.matched_incident_ids)
@@ -124,7 +175,8 @@ ${JSON.stringify(incidentsArray, null, 2)}`;
         confidence: 0.95,
       },
       ai_provider: provider,
-      ai_model: modelUsed,
+      ai_model: `${modelUsed} + ${nllbModelUsed}`,
+      nllb_translation: nllbTranslation,
     };
 
     const processingTimeMs = Date.now() - startTime;
@@ -135,7 +187,7 @@ ${JSON.stringify(incidentsArray, null, 2)}`;
       rawResponse: rawText,
       processingTimeMs,
       promptUsed: {
-        systemInstruction: 'Next.js App Router Groq Qwen 2.5 Prompt',
+        systemInstruction: 'Next.js App Router Groq Qwen 2.5 + Meta NLLB-200 Prompt',
         newReport,
         existingIncidents: incidentsArray,
       },
