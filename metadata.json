@@ -1,0 +1,6 @@
+{
+  "name": "Municipal Dispatch AI Engine",
+  "description": "Hyper-local utility reporting MVP that ingests unstructured community complaints, extracts structured ticket data, and detects duplicate incidents using Gemini AI.",
+  "requestFramePermissions": [],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}
